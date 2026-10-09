@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Електронний журнал | Хімія ЗВ-101</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #121824;
+            --card-bg: #1e293b;
+            --accent-blue: #38bdf8;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border-color: #334155;
+            --green: #4ade80;
+            --red: #f87171;
+            --yellow: #facc15;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            color: var(--accent-blue);
+            margin: 0 0 6px 0;
+            font-size: 24px;
+        }
+
+        .header p {
+            color: var(--text-sub);
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .login-box {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        input[type="number"] {
+            padding: 12px 16px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: #0f172a;
+            color: var(--text-main);
+            text-align: center;
+            letter-spacing: 2px;
+            outline: none;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--accent-blue);
+        }
+
+        button {
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 8px;
+            border: none;
+            background-color: var(--accent-blue);
+            color: #0f172a;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover { opacity: 0.9; }
+
+        .error-msg {
+            color: var(--red);
+            font-size: 14px;
+            text-align: center;
+            display: none;
+            margin-top: 8px;
+        }
+
+        .student-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .group-tag {
+            font-size: 13px;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: #0f172a;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .grades-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .grade-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px;
+            background-color: #0f172a;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .grade-item.obligatory { border-left-color: var(--yellow); }
+        .grade-item.future { opacity: 0.5; border-left-color: var(--border-color); }
+
+        .lesson-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .lesson-type { font-weight: 500; font-size: 15px; }
+        .lesson-date { font-size: 12px; color: var(--text-sub); }
+
+        .tag-badge {
+            display: inline-block;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+            margin-right: 4px;
+        }
+
+        .tag-attended { background-color: rgba(74, 222, 128, 0.15); color: var(--green); border: 1px solid var(--green); }
+        .tag-absent { background-color: rgba(148, 163, 184, 0.15); color: var(--text-sub); border: 1px solid var(--border-color); }
+        .tag-nonotes { background-color: rgba(248, 113, 113, 0.15); color: var(--red); border: 1px solid var(--red); }
+
+        .grade-badge {
+            font-size: 18px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background-color: var(--border-color);
+            min-width: 32px;
+            text-align: center;
+        }
+
+        .grade-badge.green { color: var(--green); }
+        .grade-badge.red { color: var(--red); }
+        .grade-badge.yellow { color: var(--yellow); }
+        .grade-badge.red-text { color: var(--red); border: 1px solid var(--red); }
+
+        .hidden { display: none !important; }
+        .loader { text-align: center; color: var(--accent-blue); font-size: 14px; padding: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Хімія | Група ЗВ-101</h1>
+        <p>Електронний кабінет успішності студента</p>
+    </div>
+
+    <!-- Форма входу -->
+    <div id="loginSection" class="card">
+        <div class="login-box">
+            <label for="pinInput" style="text-align: center; color: var(--text-sub);">Введіть ваш персональний PIN-код:</label>
+            <input type="number" id="pinInput" placeholder="XXXX" pattern="\d*" maxlength="4">
+            <button onclick="fetchJournalData()">Увійти в кабінет</button>
+            <div id="loader" class="loader hidden">Завантаження даних...</div>
+            <div id="errorMsg" class="error-msg"></div>
+        </div>
+    </div>
+
+    <!-- Кабінет студента -->
+    <div id="dashboardSection" class="card hidden">
+        <div class="student-title" id="studentName">ПІБ Студента</div>
+        <div class="group-tag">Група: ЗВ-101</div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Середній бал</div>
+                <div class="stat-value" id="avgGrade" style="color: var(--green);">0.0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Виконані роботи</div>
+                <div class="stat-value" id="completedCount" style="color: var(--accent-blue);">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Заборгованості</div>
+                <div class="stat-value" id="debtsCount" style="color: var(--red);">0</div>
+            </div>
+        </div>
+
+        <h3 style="color: var(--accent-blue); font-size: 16px; margin-bottom: 12px;">Усі заняття та оцінки</h3>
+        <div class="grades-list" id="gradesList"></div>
+        
+        <button onclick="logout()" style="margin-top: 20px; background-color: var(--border-color); color: var(--text-main); width: 100%;">Вийти з кабінету</button>
+    </div>
+</div>
+
+<script>
+    // ВСТАВТЕ СЮДИ ВАШЕ ПОСИЛАННЯ З КРОКУ 2 (всередину лапок):
+    const API_URL = "https://script.google.com/macros/s/AKfycbw8fSQPN3GY5JZ6PxVQg8Irio20ab0l2HwVqo4FKtUWJ61TYZ97A2pow9vSdgvWvGRD/exec";
+
+    function fetchJournalData() {
+        const pin = document.getElementById('pinInput').value.trim();
+        const errorMsg = document.getElementById('errorMsg');
+        const loader = document.getElementById('loader');
+
+        if (!pin) {
+            showError('Будь ласка, введіть PIN-код');
+            return;
+        }
+
+        errorMsg.style.display = 'none';
+        loader.classList.remove('hidden');
+
+        const oldScript = document.getElementById('jsonpScript');
+        if (oldScript) oldScript.remove();
+
+        window.handleJournalResponse = function(result) {
+            loader.classList.add('hidden');
+            if (result.status === 'success') {
+                renderDashboard(result.data);
+            } else {
+                showError(result.message || 'Студента з таким PIN-кодом не знайдено');
+            }
+        };
+
+        const script = document.createElement('script');
+        script.id = 'jsonpScript';
+        script.src = `${API_URL}?pin=${encodeURIComponent(pin)}&callback=handleJournalResponse`;
+        script.onerror = function() {
+            loader.classList.add('hidden');
+            showError('Помилка підключення до бази даних Google.');
+        };
+
+        document.body.appendChild(script);
+    }
+
+    function renderDashboard(data) {
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('dashboardSection').classList.remove('hidden');
+
+        document.getElementById('studentName').innerText = data.name;
+
+        const gradesList = document.getElementById('gradesList');
+        gradesList.innerHTML = '';
+
+        let totalWeightedPoints = 0;
+        let countGrades = 0;
+        let debts = 0;
+
+        data.grades.forEach(item => {
+            const row = document.createElement('div');
+            const isObligatory = item.type.includes('ПР') || item.type.includes('ЛР') || item.type.includes('ТКР') || item.type.includes('ТА');
+            const hasDate = item.date && item.date.trim() !== "";
+            const hasValue = item.value !== "" && item.value !== null && item.value !== undefined;
+
+            const isFuture = !hasDate && !hasValue;
+
+            let rowClass = `grade-item ${isObligatory ? 'obligatory' : ''}`;
+            if (isFuture) rowClass += ' future';
+            row.className = rowClass;
+
+            let valDisplay = item.value;
+            let colorClass = '';
+            let badgesHtml = '';
+
+            if (hasDate || hasValue) {
+                if (item.attended) {
+                    badgesHtml += `<span class="tag-badge tag-attended">Присутній(ня)</span>`;
+                } else {
+                    badgesHtml += `<span class="tag-badge tag-absent">Відсутній(ня)</span>`;
+                }
+            }
+
+            if (item.noNotes && hasValue) {
+                badgesHtml += `<span class="tag-badge tag-nonotes">Без конспекту (50%)</span>`;
+            }
+
+            if (hasValue && !isNaN(item.value)) {
+                let numericVal = parseFloat(item.value);
+                let effectiveVal = item.noNotes ? (numericVal * 0.5) : numericVal;
+                
+                totalWeightedPoints += effectiveVal;
+                countGrades++;
+
+                colorClass = item.noNotes ? 'red-text' : 'green';
+            } else if (!isFuture) {
+                valDisplay = "борг";
+                colorClass = 'red';
+                debts++;
+            } else {
+                valDisplay = "—";
+                colorClass = 'yellow';
+            }
+
+            row.innerHTML = `
+                <div class="lesson-info">
+                    <span class="lesson-type">${item.type}</span>
+                    <span class="lesson-date">${hasDate ? item.date : 'Заплановане заняття'}</span>
+                    ${badgesHtml ? `<div style="margin-top:3px;">${badgesHtml}</div>` : ''}
+                </div>
+                <div class="grade-badge ${colorClass}">${valDisplay}</div>
+            `;
+
+            gradesList.appendChild(row);
+        });
+
+        const avg = countGrades > 0 ? (totalWeightedPoints / countGrades).toFixed(1) : '0.0';
+        document.getElementById('avgGrade').innerText = avg;
+        document.getElementById('completedCount').innerText = countGrades;
+        document.getElementById('debtsCount').innerText = debts;
+    }
+
+    function showError(msg) {
+        const errorMsg = document.getElementById('errorMsg');
+        errorMsg.innerText = msg;
+        errorMsg.style.display = 'block';
+    }
+
+    function logout() {
+        document.getElementById('dashboardSection').classList.add('hidden');
+        document.getElementById('loginSection').classList.remove('hidden');
+        document.getElementById('pinInput').value = '';
+    }
+</script>
+
+</body>
+</html>
